@@ -43,6 +43,7 @@ public class bankSystemClient implements ActionListener{
   private static JLabel nameSuccess;
   private static JLabel IDSuccess;
   private static JLabel depositSuccess;
+  private static JLabel errorLbl;
 
   //welcome page
   public static void welcomePage(){
@@ -106,10 +107,10 @@ public class bankSystemClient implements ActionListener{
     panel.add(customerIDText);
 
     //how much to deposit
-    depositLbl = new JLabel("How much would you like to deposit?      $");
-    depositLbl.setBounds(50, 275, 250, 25);
+    depositLbl = new JLabel("How much would you like to deposit?    $");
+    depositLbl.setBounds(50, 300, 250, 25);
     panel.add(depositLbl);
-    depositText.setBounds(290, 275, 150, 25);
+    depositText.setBounds(290, 300, 150, 25);
     panel.add(depositText);
 
     //deposit button
@@ -132,6 +133,11 @@ public class bankSystemClient implements ActionListener{
     depositSuccess = new JLabel("");
     depositSuccess.setBounds(290, 300, 300, 25);
     panel.add(depositSuccess);
+
+    //error label
+    errorLbl = new JLabel("");
+    errorLbl.setBounds(320, 400, 400, 25);
+    panel.add(errorLbl);
 
     //repack frame
     frame.pack();
@@ -201,29 +207,40 @@ public class bankSystemClient implements ActionListener{
       }
       if (depositApproved){
         balance = 100 + depositNum;
-        recordInfo(name, ID, balance);
-        verify(name, ID);
-        confirmation();
+        if (verify(name, ID)){
+          confirmation();
+        }
+        else{
+          errorLbl.setText("Sorry this account does not exist. Please Try Again or Return");
+        }
       }
     }
   }
 
-  public static void verify(String name, String ID){
+  public static boolean verify(String name, String ID){
     try{
       FileReader reader = new FileReader("notTheBankDatabase.txt");
       BufferedReader bufferedReader = new BufferedReader(reader);
       List<String> names = new ArrayList<String>();
+      List<String> IDs = new ArrayList<String>();
       String info;
 
       while((info = bufferedReader.readLine()) != null){
         String[] parts = info.split("/");
         names.add(parts[0]);
+        IDs.add(parts[1]);
       }
-      System.out.println(names);
+      if ((verification.inPossibleStringEntries(name, names)) && (verification.inPossibleStringEntries(ID, IDs))){
+        return true;
+      }
+      else{
+        return false;
+      }
     }
 
     catch(Exception e){
       System.out.print("Error in Buffer Reader code: " + e);
+      return false;
     }
   }
 
