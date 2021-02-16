@@ -93,7 +93,7 @@ public class bankSystemClient implements ActionListener{
 
     //name label
     nameLbl = new JLabel("Customer Name: ");
-    nameLbl.setBounds(50, 200, 100, 25);
+    nameLbl.setBounds(50, 200, 125, 25);
     panel.add(nameLbl);
     nameText.setBounds(175, 200, 200, 25);
     panel.add(nameText);
@@ -130,7 +130,7 @@ public class bankSystemClient implements ActionListener{
 
     //deposit success
     depositSuccess = new JLabel("");
-    depositSuccess.setBounds(275, 300, 300, 25);
+    depositSuccess.setBounds(290, 300, 300, 25);
     panel.add(depositSuccess);
 
     //repack frame
@@ -202,16 +202,34 @@ public class bankSystemClient implements ActionListener{
       if (depositApproved){
         balance = 100 + depositNum;
         recordInfo(name, ID, balance);
+        verify(name, ID);
         confirmation();
       }
     }
   }
 
-  public static void recordInfo(String name, String ID, Double balance){
+  public static void verify(String name, String ID){
     try{
       FileReader reader = new FileReader("notTheBankDatabase.txt");
       BufferedReader bufferedReader = new BufferedReader(reader);
-      FileWriter writer = new FileWriter("notTheBankDatabase.txt");
+      List<String> names = new ArrayList<String>();
+      String info;
+
+      while((info = bufferedReader.readLine()) != null){
+        String[] parts = info.split("/");
+        names.add(parts[0]);
+      }
+      System.out.println(names);
+    }
+
+    catch(Exception e){
+      System.out.print("Error in Buffer Reader code: " + e);
+    }
+  }
+
+  public static void recordInfo(String name, String ID, Double balance){
+    try{
+      FileWriter writer = new FileWriter("notTheBankDatabase.txt", true);
       BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
       bufferedWriter.write(name + "/" + ID + "/" + balance);
