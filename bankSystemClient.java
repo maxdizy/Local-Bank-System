@@ -22,6 +22,10 @@ public class bankSystemClient implements ActionListener{
   private static String name;
   private static String ID;
   private static Double balance;
+  private static List<String> names = new ArrayList<String>();
+  private static List<String> IDs = new ArrayList<String>();
+  private static List<String> balances = new ArrayList<String>();
+  private static ArrayList<String> info = new ArrayList<String>();
 
   //welcome global variables
   private static JLabel welcome;
@@ -131,12 +135,12 @@ public class bankSystemClient implements ActionListener{
 
     //deposit success
     depositSuccess = new JLabel("");
-    depositSuccess.setBounds(290, 300, 300, 25);
+    depositSuccess.setBounds(290, 325, 300, 25);
     panel.add(depositSuccess);
 
     //error label
     errorLbl = new JLabel("");
-    errorLbl.setBounds(320, 400, 400, 25);
+    errorLbl.setBounds(250, 400, 500, 25);
     panel.add(errorLbl);
 
     //repack frame
@@ -196,7 +200,7 @@ public class bankSystemClient implements ActionListener{
         depositApproved = false;
       }
       //check deposit
-      if (verification.checkInt(deposit)){
+      if (verification.checkDouble(deposit)){
         deposit = depositText.getText().toLowerCase();
         depositNum = Double.parseDouble(deposit);
         depositSuccess.setText("success.");
@@ -206,52 +210,45 @@ public class bankSystemClient implements ActionListener{
         depositApproved = false;
       }
       if (depositApproved){
-        balance = 100 + depositNum;
-        if (verify(name, ID)){
-          confirmation();
+        if(verify(name, ID)){
+          depositTo(name, ID, depositNum);
         }
         else{
-          errorLbl.setText("Sorry this account does not exist. Please Try Again or Return");
+          errorLbl.setText("Sorry this account does not exist. Please Check Spelling or Create Account");
         }
       }
-    }
+  }
   }
 
   public static boolean verify(String name, String ID){
-    try{
-      FileReader reader = new FileReader("notTheBankDatabase.txt");
-      BufferedReader bufferedReader = new BufferedReader(reader);
-      List<String> names = new ArrayList<String>();
-      List<String> IDs = new ArrayList<String>();
-      String info;
-
-      while((info = bufferedReader.readLine()) != null){
-        String[] parts = info.split("/");
-        names.add(parts[0]);
-        IDs.add(parts[1]);
-      }
-      if ((verification.inPossibleStringEntries(name, names)) && (verification.inPossibleStringEntries(ID, IDs))){
-        return true;
-      }
-      else{
-        return false;
-      }
+    readFile();
+    if((verification.inPossibleStringEntries(name, names)) && (verification.inPossibleStringEntries(ID, IDs))){
+      return true;
     }
-
-    catch(Exception e){
-      System.out.print("Error in Buffer Reader code: " + e);
+    else{
+      errorLbl.setText("Sorry this account does not exist. Please Check Spelling or Create Account");
       return false;
     }
   }
 
-  public static void recordInfo(String name, String ID, Double balance){
+  public static void depositTo(String name, String ID, Double deposit){
+    readFile();
+    int index = names.indexOf(name);
+    String changable = info.get(index);
+    String[] parts = changable.split("/");
+    parts[2] = String.valueOf(Double.parseDouble(parts[2]) + deposit);
+    String changed = String.join("/",parts[0], parts[1], parts[2]);
+    info.set(index, changed);
+    updateFile();
+  }
+
+  public static void newAccount(String name, String ID, Double balance){
     try{
       FileWriter writer = new FileWriter("notTheBankDatabase.txt", true);
       BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
       bufferedWriter.write(name + "/" + ID + "/" + balance);
       bufferedWriter.newLine();
-
       bufferedWriter.close();
     }
     catch(Exception e){
@@ -259,8 +256,55 @@ public class bankSystemClient implements ActionListener{
     }
   }
 
-  public static void confirmation(){
+  public static void confirmation(String name, String ID, String task){
     System.out.println("confirm");
+  }
+
+  public static void readFile(){
+    //clear info
+    names.clear();
+    IDs.clear();
+    info.clear();
+
+    //rewrite new info
+    try{
+      FileReader reader = new FileReader("notTheBankDatabase.txt");
+      BufferedReader bufferedReader = new BufferedReader(reader);
+      String line;
+
+      while((line = bufferedReader.readLine()) != null){
+        info.add(line);
+        String[] parts = line.split("/");
+        names.add(parts[0]);
+        IDs.add(parts[1]);
+        balances.add(parts[2]);
+      }}
+    catch(Exception e){
+        System.out.print("Error reading file..." + e);
+      }
+    }
+
+  public static void updateFile(){
+    try{
+      //clear file
+      FileWriter writerDel = new FileWriter("notTheBankDatabase.txt");
+      BufferedWriter bufferedWriterDel = new BufferedWriter(writerDel);
+      bufferedWriterDel.write("");
+      bufferedWriterDel.close();
+
+      //rewrite new info
+      FileWriter writer = new FileWriter("notTheBankDatabase.txt", true);
+      BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+      for (String user : info){
+        bufferedWriter.write(user);
+        bufferedWriter.newLine();
+      }
+      bufferedWriter.close();
+    }
+    catch(Exception e){
+      System.out.println("Buffer Reader/Writer Issue... Report: " + e);
+    }
   }
 
   //quit to welcome screen
