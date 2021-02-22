@@ -22,7 +22,7 @@ public class bankSystemClient implements ActionListener{
   private static String task;
   private static String name;
   private static String ID;
-  private static Double balance;
+  private static Double balance = 0.0;
   private static List<String> names = new ArrayList<String>();
   private static List<String> IDs = new ArrayList<String>();
   private static List<String> balances = new ArrayList<String>();
@@ -99,7 +99,7 @@ public class bankSystemClient implements ActionListener{
 
     //taskSuccess
     taskSuccess = new JLabel("");
-    taskSuccess.setBounds(450, 125, 300, 25);
+    taskSuccess.setBounds(450, 125, 400, 25);
     panel.add(taskSuccess);
 
     //add welcome panel to frame
@@ -184,7 +184,7 @@ public class bankSystemClient implements ActionListener{
     changeLbl = new JLabel("How much would you like to Withdraw?    $");
     changeLbl.setBounds(50, 300, 250, 25);
     panel.add(changeLbl);
-    changeText.setBounds(290, 300, 150, 25);
+    changeText.setBounds(310, 300, 150, 25);
     panel.add(changeText);
 
     //deposit button
@@ -280,12 +280,12 @@ public class bankSystemClient implements ActionListener{
 
     //starting balance
     startBalanceLbl = new JLabel("Starting Balance: ");
-    startBalanceLbl.setBounds(550, 200, 100, 25);
+    startBalanceLbl.setBounds(550, 200, 200, 25);
     panel.add(startBalanceLbl);
     startBalanceText.setBounds(675, 200, 200, 25);
     panel.add(startBalanceText);
 
-    //deposit button
+    //complete button
     changeBut = new JButton("complete");
     changeBut.setBounds(800, 425, 100, 25);
     changeBut.addActionListener(new bankSystemClient());
@@ -300,6 +300,50 @@ public class bankSystemClient implements ActionListener{
     balanceSuccess = new JLabel("");
     balanceSuccess.setBounds(675, 225, 300, 25);
     panel.add(balanceSuccess);
+
+    //repack frame
+    frame.pack();
+    frame.setSize(992, 558);
+  }
+
+  //remove
+  public static void remove(){
+    continueBut.setVisible(false);
+
+    //name label
+    nameLbl = new JLabel("Customer Name: ");
+    nameLbl.setBounds(50, 200, 125, 25);
+    panel.add(nameLbl);
+    nameText.setBounds(175, 200, 200, 25);
+    panel.add(nameText);
+
+    //customer ID
+    customerIDLbl = new JLabel("Customer ID: ");
+    customerIDLbl.setBounds(550, 200, 100, 25);
+    panel.add(customerIDLbl);
+    customerIDText.setBounds(650, 200, 200, 25);
+    panel.add(customerIDText);
+
+    //complete button
+    changeBut = new JButton("complete");
+    changeBut.setBounds(800, 425, 100, 25);
+    changeBut.addActionListener(new bankSystemClient());
+    panel.add(changeBut);
+
+    //nameSuccess
+    nameSuccess = new JLabel("");
+    nameSuccess.setBounds(175, 225, 300, 25);
+    panel.add(nameSuccess);
+
+    //IDSuccess
+    IDSuccess = new JLabel("");
+    IDSuccess.setBounds(650, 225, 300, 25);
+    panel.add(IDSuccess);
+
+    //error label
+    errorLbl = new JLabel("");
+    errorLbl.setBounds(250, 400, 500, 25);
+    panel.add(errorLbl);
 
     //repack frame
     frame.pack();
@@ -373,9 +417,9 @@ public class bankSystemClient implements ActionListener{
         if (task.equals("create")){
           create();
         }
-        /*if (task == "remove"){
+        if (task.equals("remove")){
           remove();
-        }*/
+        }
       }
       else{
         taskSuccess.setText("Invalid input, Please try again from the options above.");
@@ -384,19 +428,13 @@ public class bankSystemClient implements ActionListener{
 
     //complete button
     if (e.getSource() == changeBut){
-      //check if approved value
+      //check if approved value and set changeNum to 0
       changeApproved = true;
-
-      //unique variables
-      name = nameText.getText().toLowerCase();
-      ID = customerIDText.getText().toLowerCase();
-      change = changeText.getText().toLowerCase();
-      startBalance = startBalanceText.getText().toLowerCase();
       changeNum = 0.0;
-      errorLbl.setText("");
 
       //check name
       if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("create") || task.equals("remove")){
+        name = nameText.getText().toLowerCase();
         if (verification.checkName(name)){
           name = nameText.getText().toLowerCase();
           nameSuccess.setText("success.");
@@ -408,6 +446,8 @@ public class bankSystemClient implements ActionListener{
       }
       //check ID
       if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("remove")){
+        errorLbl.setText("");
+        ID = customerIDText.getText().toLowerCase();
         if (verification.checkInt(ID)){
           ID = customerIDText.getText().toLowerCase();
           IDSuccess.setText("success.");
@@ -419,6 +459,7 @@ public class bankSystemClient implements ActionListener{
       }
       //check change
       if (task.equals("d") || task.equals("w")){
+        change = changeText.getText().toLowerCase();
         if (verification.checkDouble(change)){
           change = changeText.getText().toLowerCase();
           changeNum = Double.parseDouble(change);
@@ -432,6 +473,7 @@ public class bankSystemClient implements ActionListener{
 
       //check starting balance
       if (task.equals("create")){
+        startBalance = startBalanceText.getText().toLowerCase();
         if (verification.checkDouble(startBalance)){
           balance = Double.parseDouble(startBalance);
           balanceSuccess.setText("success.");
@@ -456,12 +498,12 @@ public class bankSystemClient implements ActionListener{
         else{
           errorLbl.setText("Sorry this account does not exist. Please Check Spelling or Create Account");
         }
+      }
         if (task.equals("create")){
           confirmation(task, name, change);
         }
       }
     }
-  }
 
     //confirmation button
     if (e.getSource() == confirmBut){
@@ -475,9 +517,9 @@ public class bankSystemClient implements ActionListener{
       if (task.equals("create")){
         newAccount(name, balance);
       }
-      /*if (task == "remove"){
-        remove();
-      }*/
+      if (task.equals("remove")){
+        removeAccount(name);
+      }
       quit();
     }
   }
@@ -524,18 +566,18 @@ public class bankSystemClient implements ActionListener{
   }
 
   public static void newAccount(String name, Double balance){
-    int ID = names.size();
-    try{
-      FileWriter writer = new FileWriter("notTheBankDatabase.txt", true);
-      BufferedWriter bufferedWriter = new BufferedWriter(writer);
+    int IDint = names.size() + 1;
+    String ID = String.valueOf(IDint);
+    String balanceStr = String.valueOf(balance);
+    info.add(name + "/" + ID + "/" + balanceStr);
+    updateFile();
+  }
 
-      bufferedWriter.write(name + "/" + ID + "/" + balance);
-      bufferedWriter.newLine();
-      bufferedWriter.close();
-    }
-    catch(Exception e){
-      System.out.println("Buffer Reader/Writer Issue... Report: " + e);
-    }
+  public static void removeAccount(String name){
+    System.out.println("yes");
+    int remIndex = names.indexOf(name);
+    info.remove(remIndex);
+    updateFile();
   }
 
   public static void readFile(){
