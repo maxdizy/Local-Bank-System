@@ -11,6 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
+import java.lang.Math;
 
 public class bankSystemClient implements ActionListener{
 
@@ -60,6 +61,8 @@ public class bankSystemClient implements ActionListener{
   private static String change;
   private static String startBalance;
   private static Double changeNum;
+  private static JButton nextPageBut;
+  private static int page = 1;
 
   //welcome page
   public static void welcomePage(){
@@ -67,6 +70,9 @@ public class bankSystemClient implements ActionListener{
     panel.setLayout(null);
     //read file
     readFile();
+
+    //reset variables
+    page = 1;
 
     //welcome label
     welcome = new JLabel("Welcome to the Dizy Bank System");
@@ -412,7 +418,7 @@ public class bankSystemClient implements ActionListener{
           check();
         }
         if (task.equals("r")){
-          report();
+          report(page);
         }
         if (task.equals("create")){
           create();
@@ -522,6 +528,17 @@ public class bankSystemClient implements ActionListener{
       }
       quit();
     }
+
+    //next page button
+    if (e.getSource() == nextPageBut){
+      if (page < (int)Math.ceil((double)names.size() / 5)){
+        page++;
+        report(page);
+      }
+      else{
+        errorLbl.setText("there are no more pages available");
+      }
+    }
   }
 
   public static boolean verify(String name, String ID){
@@ -557,12 +574,51 @@ public class bankSystemClient implements ActionListener{
     balanceLbl.setText(name + "'s account has a balance of $" + balances.get(names.indexOf(name)));
   }
 
-  public static void report(){
-    for (int i=0 ; i < names.size() ; i++){
-      name = names.get(i);
-      ID = IDs.get(i);
-      balance = Double.parseDouble(balances.get(i));
+  public static void report(int page){
+    panel.removeAll();
+
+    //next page button
+    nextPageBut = new JButton("next page");
+    nextPageBut.setBounds(800, 425, 100, 25);
+    nextPageBut.addActionListener(new bankSystemClient());
+    panel.add(nextPageBut);
+
+    //return button
+    returnBut = new JButton("return");
+    returnBut.setBounds(50, 425, 100, 25);
+    returnBut.addActionListener(new bankSystemClient());
+    panel.add(returnBut);
+
+    //error label
+    errorLbl = new JLabel("");
+    errorLbl.setBounds(325, 400, 500, 25);
+    panel.add(errorLbl);
+
+    try{
+      //create labels
+      JLabel user1 = new JLabel("name: " + names.get((page*5)-5) + "      //      ID: " + IDs.get((page*5)-5) + "     //      balance: " + balances.get((page*5)-5));
+      user1.setBounds(325, 200, 500, 25);
+      panel.add(user1);
+      JLabel user2 = new JLabel("name: " + names.get((page*5)-4) + "      //      ID: " + IDs.get((page*5)-4) + "     //      balance: " + balances.get((page*5)-4));
+      user2.setBounds(325, 225, 500, 25);
+      panel.add(user2);
+      JLabel user3 = new JLabel("name: " + names.get((page*5)-3) + "      //      ID: " + IDs.get((page*5)-3) + "     //      balance: " + balances.get((page*5)-3));
+      user3.setBounds(325, 250, 500, 25);
+      panel.add(user3);
+      JLabel user4 = new JLabel("name: " + names.get((page*5)-2) + "      //      ID: " + IDs.get((page*5)-2) + "     //      balance: " + balances.get((page*5)-2));
+      user4.setBounds(325, 275, 500, 25);
+      panel.add(user4);
+      JLabel user5 = new JLabel("name: " + names.get((page*5)-1) + "      //      ID: " + IDs.get((page*5)-1) + "     //      balance: " + balances.get((page*5)-1));
+      user5.setBounds(325, 300, 500, 25);
+      panel.add(user5);
     }
+    catch(Exception e){
+      errorLbl.setText("no more accounts to display");
+    }
+
+    //repack frame
+    frame.pack();
+    frame.setSize(992, 558);
   }
 
   public static void newAccount(String name, Double balance){
@@ -574,7 +630,6 @@ public class bankSystemClient implements ActionListener{
   }
 
   public static void removeAccount(String name){
-    System.out.println("yes");
     int remIndex = names.indexOf(name);
     info.remove(remIndex);
     updateFile();

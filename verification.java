@@ -62,6 +62,20 @@ public class verification{
     }
   }
 
+  /*varifies if user input is a double
+    Pre: user input
+    Post: returns boolean value if the input is valid or not*/
+    public static boolean checkDouble(String num){
+      try{
+        double number = Double.parseDouble(num);
+        return true;
+        }
+      catch(Exception e){
+        System.out.print("invalid response. please enter a number, and try again:\n");
+        return false;
+      }
+    }
+
   /*varifies if user input is a integer
     Pre: user input
     Post: returns boolean value if the input is valid or not*/
