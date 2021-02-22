@@ -4,7 +4,7 @@ ICS4U
 Mr. Hofstatter
 bankSystemClient
 JAVA bank system for a emplyee to create, edit and remove banking records as well as manipulate user accounts*/
-//package textFiles;
+
 import java.util.*;
 import java.io.*;
 import java.awt.event.*;
@@ -19,6 +19,7 @@ public class bankSystemClient implements ActionListener{
   public static JPanel panel = new JPanel();
 
   //shared global variables
+  private static String task;
   private static String name;
   private static String ID;
   private static Double balance;
@@ -36,23 +37,36 @@ public class bankSystemClient implements ActionListener{
   private static JLabel taskSuccess;
   private static JButton returnBut;
 
-  //deposit global variables
+  //change global variables
   private static JLabel nameLbl;
   private static JTextField nameText = new JTextField(12);
   private static JLabel customerIDLbl;
   private static JTextField customerIDText = new JTextField(12);
-  private static JLabel depositLbl;
-  private static JTextField depositText = new JTextField(12);
-  private static JButton depositBut;
+  private static JLabel changeLbl;
+  private static JTextField changeText = new JTextField(12);
+  private static JButton changeBut;
   private static JLabel nameSuccess;
   private static JLabel IDSuccess;
-  private static JLabel depositSuccess;
+  private static JLabel changeSuccess;
   private static JLabel errorLbl;
+  private static JLabel balanceLbl;
+  private static JLabel startBalanceLbl;
+  private static JTextField startBalanceText = new JTextField(12);
+  private static JLabel balanceSuccess;
+  private static JLabel confirmLbl;
+  private static JButton confirmBut;
+  private static boolean confirm = false;
+  private static boolean changeApproved = true;
+  private static String change;
+  private static String startBalance;
+  private static Double changeNum;
 
   //welcome page
   public static void welcomePage(){
     //set layout to null
     panel.setLayout(null);
+    //read file
+    readFile();
 
     //welcome label
     welcome = new JLabel("Welcome to the Dizy Bank System");
@@ -111,17 +125,17 @@ public class bankSystemClient implements ActionListener{
     panel.add(customerIDText);
 
     //how much to deposit
-    depositLbl = new JLabel("How much would you like to deposit?    $");
-    depositLbl.setBounds(50, 300, 250, 25);
-    panel.add(depositLbl);
-    depositText.setBounds(290, 300, 150, 25);
-    panel.add(depositText);
+    changeLbl = new JLabel("How much would you like to deposit?    $");
+    changeLbl.setBounds(50, 300, 250, 25);
+    panel.add(changeLbl);
+    changeText.setBounds(290, 300, 150, 25);
+    panel.add(changeText);
 
     //deposit button
-    depositBut = new JButton("complete");
-    depositBut.setBounds(800, 425, 100, 25);
-    depositBut.addActionListener(new bankSystemClient());
-    panel.add(depositBut);
+    changeBut = new JButton("complete");
+    changeBut.setBounds(800, 425, 100, 25);
+    changeBut.addActionListener(new bankSystemClient());
+    panel.add(changeBut);
 
     //nameSuccess
     nameSuccess = new JLabel("");
@@ -134,14 +148,195 @@ public class bankSystemClient implements ActionListener{
     panel.add(IDSuccess);
 
     //deposit success
-    depositSuccess = new JLabel("");
-    depositSuccess.setBounds(290, 325, 300, 25);
-    panel.add(depositSuccess);
+    changeSuccess = new JLabel("");
+    changeSuccess.setBounds(290, 325, 300, 25);
+    panel.add(changeSuccess);
 
     //error label
     errorLbl = new JLabel("");
     errorLbl.setBounds(250, 400, 500, 25);
     panel.add(errorLbl);
+
+    //repack frame
+    frame.pack();
+    frame.setSize(992, 558);
+  }
+
+  //withdraw
+  public static void withdraw(){
+    continueBut.setVisible(false);
+
+    //name label
+    nameLbl = new JLabel("Customer Name: ");
+    nameLbl.setBounds(50, 200, 125, 25);
+    panel.add(nameLbl);
+    nameText.setBounds(175, 200, 200, 25);
+    panel.add(nameText);
+
+    //customer ID
+    customerIDLbl = new JLabel("Customer ID: ");
+    customerIDLbl.setBounds(550, 200, 100, 25);
+    panel.add(customerIDLbl);
+    customerIDText.setBounds(650, 200, 200, 25);
+    panel.add(customerIDText);
+
+    //how much to deposit
+    changeLbl = new JLabel("How much would you like to Withdraw?    $");
+    changeLbl.setBounds(50, 300, 250, 25);
+    panel.add(changeLbl);
+    changeText.setBounds(290, 300, 150, 25);
+    panel.add(changeText);
+
+    //deposit button
+    changeBut = new JButton("complete");
+    changeBut.setBounds(800, 425, 100, 25);
+    changeBut.addActionListener(new bankSystemClient());
+    panel.add(changeBut);
+
+    //nameSuccess
+    nameSuccess = new JLabel("");
+    nameSuccess.setBounds(175, 225, 300, 25);
+    panel.add(nameSuccess);
+
+    //IDSuccess
+    IDSuccess = new JLabel("");
+    IDSuccess.setBounds(650, 225, 300, 25);
+    panel.add(IDSuccess);
+
+    //deposit success
+    changeSuccess = new JLabel("");
+    changeSuccess.setBounds(290, 325, 300, 25);
+    panel.add(changeSuccess);
+
+    //error label
+    errorLbl = new JLabel("");
+    errorLbl.setBounds(250, 400, 500, 25);
+    panel.add(errorLbl);
+
+    //repack frame
+    frame.pack();
+    frame.setSize(992, 558);
+  }
+
+  //check
+  public static void check(){
+    continueBut.setVisible(false);
+
+    //name label
+    nameLbl = new JLabel("Customer Name: ");
+    nameLbl.setBounds(50, 200, 125, 25);
+    panel.add(nameLbl);
+    nameText.setBounds(175, 200, 200, 25);
+    panel.add(nameText);
+
+    //customer ID
+    customerIDLbl = new JLabel("Customer ID: ");
+    customerIDLbl.setBounds(550, 200, 100, 25);
+    panel.add(customerIDLbl);
+    customerIDText.setBounds(650, 200, 200, 25);
+    panel.add(customerIDText);
+
+    //deposit button
+    changeBut = new JButton("complete");
+    changeBut.setBounds(800, 425, 100, 25);
+    changeBut.addActionListener(new bankSystemClient());
+    panel.add(changeBut);
+
+    //nameSuccess
+    nameSuccess = new JLabel("");
+    nameSuccess.setBounds(175, 225, 300, 25);
+    panel.add(nameSuccess);
+
+    //IDSuccess
+    IDSuccess = new JLabel("");
+    IDSuccess.setBounds(650, 225, 300, 25);
+    panel.add(IDSuccess);
+
+    //balance label
+    balanceLbl = new JLabel("");
+    balanceLbl.setBounds(350, 300, 500, 25);
+    panel.add(balanceLbl);
+
+    //error label
+    errorLbl = new JLabel("");
+    errorLbl.setBounds(250, 400, 500, 25);
+    panel.add(errorLbl);
+
+    //repack frame
+    frame.pack();
+    frame.setSize(992, 558);
+  }
+
+  //create
+  public static void create(){
+    continueBut.setVisible(false);
+
+    //name label
+    nameLbl = new JLabel("Customer Name: ");
+    nameLbl.setBounds(50, 200, 125, 25);
+    panel.add(nameLbl);
+    nameText.setBounds(175, 200, 200, 25);
+    panel.add(nameText);
+
+    //starting balance
+    startBalanceLbl = new JLabel("Starting Balance: ");
+    startBalanceLbl.setBounds(550, 200, 100, 25);
+    panel.add(startBalanceLbl);
+    startBalanceText.setBounds(675, 200, 200, 25);
+    panel.add(startBalanceText);
+
+    //deposit button
+    changeBut = new JButton("complete");
+    changeBut.setBounds(800, 425, 100, 25);
+    changeBut.addActionListener(new bankSystemClient());
+    panel.add(changeBut);
+
+    //nameSuccess
+    nameSuccess = new JLabel("");
+    nameSuccess.setBounds(175, 225, 300, 25);
+    panel.add(nameSuccess);
+
+    //starting balance success
+    balanceSuccess = new JLabel("");
+    balanceSuccess.setBounds(675, 225, 300, 25);
+    panel.add(balanceSuccess);
+
+    //repack frame
+    frame.pack();
+    frame.setSize(992, 558);
+  }
+
+  //confirmation screen
+  public static void confirmation(String task, String name, String change){
+    changeBut.setVisible(false);
+
+    String string = " continue?";
+    if (task.equals("d")){
+      string = "deposit $" + change + " from " + name + "'s account?";
+    }
+
+    if (task.equals("w")){
+      string = "withdraw $" + change + " from " + name + "'s account?";
+    }
+
+    if (task.equals("create")){
+      string = "create an account for " + name + "?";
+    }
+
+    if (task.equals("remove")){
+      string = "remove " + name + "'s account?";
+    }
+
+    //name label
+    confirmLbl = new JLabel("are you sure you would like to " + string);
+    confirmLbl.setBounds(275, 450, 500, 25);
+    panel.add(confirmLbl);
+
+    //confirm button
+    confirmBut = new JButton("confirm");
+    confirmBut.setBounds(800, 425, 100, 25);
+    confirmBut.addActionListener(new bankSystemClient());
+    panel.add(confirmBut);
 
     //repack frame
     frame.pack();
@@ -157,73 +352,145 @@ public class bankSystemClient implements ActionListener{
     //continue button
     if (e.getSource() == continueBut){
       //get inputted values
-      String task = taskText.getText().toLowerCase();
+      task = taskText.getText().toLowerCase();
 
       //create array list of possible entries and check
       List <String> possible = Arrays.asList("d", "w", "c", "r", "create", "remove");
       if (verification.inPossibleStringEntries(task, possible)){
         taskSuccess.setText("success.");
-        deposit();
+        if (task.equals("d")){
+          deposit();
+        }
+        if (task.equals("w")){
+          withdraw();
+        }
+        if (task.equals("c")){
+          check();
+        }
+        if (task.equals("r")){
+          report();
+        }
+        if (task.equals("create")){
+          create();
+        }
+        /*if (task == "remove"){
+          remove();
+        }*/
       }
       else{
         taskSuccess.setText("Invalid input, Please try again from the options above.");
       }
     }
 
-    //deposite button
-    if (e.getSource() == depositBut){
+    //complete button
+    if (e.getSource() == changeBut){
       //check if approved value
-      boolean depositApproved = true;
+      changeApproved = true;
 
       //unique variables
       name = nameText.getText().toLowerCase();
       ID = customerIDText.getText().toLowerCase();
-      String deposit = depositText.getText().toLowerCase();
-      Double depositNum = 0.0;
+      change = changeText.getText().toLowerCase();
+      startBalance = startBalanceText.getText().toLowerCase();
+      changeNum = 0.0;
+      errorLbl.setText("");
 
       //check name
-      if (verification.checkName(name)){
-        name = nameText.getText().toLowerCase();
-        nameSuccess.setText("success.");
-      }
-      else{
-        nameSuccess.setText("Invalid input, Please only enter letters.");
-        depositApproved = false;
+      if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("create") || task.equals("remove")){
+        if (verification.checkName(name)){
+          name = nameText.getText().toLowerCase();
+          nameSuccess.setText("success.");
+        }
+        else{
+          nameSuccess.setText("Invalid input, Please only enter letters.");
+          changeApproved = false;
+        }
       }
       //check ID
-      if (verification.checkName(ID)){
-        ID = customerIDText.getText().toLowerCase();
-        IDSuccess.setText("success.");
-      }
-      else{
-        IDSuccess.setText("Invalid input, Customer ID incorrect.");
-        depositApproved = false;
-      }
-      //check deposit
-      if (verification.checkDouble(deposit)){
-        deposit = depositText.getText().toLowerCase();
-        depositNum = Double.parseDouble(deposit);
-        depositSuccess.setText("success.");
-      }
-      else{
-        depositSuccess.setText("Invalid input, Please only enter numbers.");
-        depositApproved = false;
-      }
-      if (depositApproved){
-        if(verify(name, ID)){
-          depositTo(name, ID, depositNum);
+      if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("remove")){
+        if (verification.checkInt(ID)){
+          ID = customerIDText.getText().toLowerCase();
+          IDSuccess.setText("success.");
         }
+        else{
+          IDSuccess.setText("Invalid input, Please only enter numbers.");
+          changeApproved = false;
+        }
+      }
+      //check change
+      if (task.equals("d") || task.equals("w")){
+        if (verification.checkDouble(change)){
+          change = changeText.getText().toLowerCase();
+          changeNum = Double.parseDouble(change);
+          changeSuccess.setText("success.");
+        }
+        else{
+          changeSuccess.setText("Invalid input, Please only enter numbers.");
+          changeApproved = false;
+        }
+      }
+
+      //check starting balance
+      if (task.equals("create")){
+        if (verification.checkDouble(startBalance)){
+          balance = Double.parseDouble(startBalance);
+          balanceSuccess.setText("success.");
+        }
+        else{
+          balanceSuccess.setText("Invalid input, Please only enter numbers.");
+          changeApproved = false;
+        }
+      }
+
+      //check inputs
+      if (changeApproved){
+        if (!task.equals("create")){
+          if(verify(name, ID)){
+            if (task.equals("c")){
+              checkBalance(name);
+            }
+            else{
+              confirmation(task, name, change);
+            }
+          }
         else{
           errorLbl.setText("Sorry this account does not exist. Please Check Spelling or Create Account");
         }
+        if (task.equals("create")){
+          confirmation(task, name, change);
+        }
       }
+    }
   }
+
+    //confirmation button
+    if (e.getSource() == confirmBut){
+      if (task.equals("d")){
+        changeTo(name, ID, changeNum);
+      }
+      if (task.equals("w")){
+        changeNum = changeNum * -1;
+        changeTo(name, ID, changeNum);
+      }
+      if (task.equals("create")){
+        newAccount(name, balance);
+      }
+      /*if (task == "remove"){
+        remove();
+      }*/
+      quit();
+    }
   }
 
   public static boolean verify(String name, String ID){
     readFile();
     if((verification.inPossibleStringEntries(name, names)) && (verification.inPossibleStringEntries(ID, IDs))){
-      return true;
+      if (names.indexOf(name) == IDs.indexOf(ID)){
+        return true;
+      }
+      else{
+        return false;
+      }
     }
     else{
       errorLbl.setText("Sorry this account does not exist. Please Check Spelling or Create Account");
@@ -231,7 +498,7 @@ public class bankSystemClient implements ActionListener{
     }
   }
 
-  public static void depositTo(String name, String ID, Double deposit){
+  public static void changeTo(String name, String ID, Double deposit){
     readFile();
     int index = names.indexOf(name);
     String changable = info.get(index);
@@ -242,7 +509,22 @@ public class bankSystemClient implements ActionListener{
     updateFile();
   }
 
-  public static void newAccount(String name, String ID, Double balance){
+  public static void checkBalance(String name){
+    readFile();
+    //balance label
+    balanceLbl.setText(name + "'s account has a balance of $" + balances.get(names.indexOf(name)));
+  }
+
+  public static void report(){
+    for (int i=0 ; i < names.size() ; i++){
+      name = names.get(i);
+      ID = IDs.get(i);
+      balance = Double.parseDouble(balances.get(i));
+    }
+  }
+
+  public static void newAccount(String name, Double balance){
+    int ID = names.size();
     try{
       FileWriter writer = new FileWriter("notTheBankDatabase.txt", true);
       BufferedWriter bufferedWriter = new BufferedWriter(writer);
@@ -254,10 +536,6 @@ public class bankSystemClient implements ActionListener{
     catch(Exception e){
       System.out.println("Buffer Reader/Writer Issue... Report: " + e);
     }
-  }
-
-  public static void confirmation(String name, String ID, String task){
-    System.out.println("confirm");
   }
 
   public static void readFile(){
@@ -311,6 +589,7 @@ public class bankSystemClient implements ActionListener{
   public static void quit(){
     panel.removeAll();
     frame.pack();
+    confirm = false;
     frame.setSize(992, 558);
     welcomePage();
   }
