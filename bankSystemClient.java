@@ -63,6 +63,10 @@ public class bankSystemClient implements ActionListener{
   private static Double changeNum;
   private static JButton nextPageBut;
   private static int page = 1;
+  private static int months;
+  private static JLabel monthsLbl;
+  private static JTextField monthsLblText = new JTextField(12);
+  private static JLabel monthsSuccess;
 
   //welcome page
   public static void welcomePage(){
@@ -80,8 +84,8 @@ public class bankSystemClient implements ActionListener{
     panel.add(welcome);
 
     //options label
-    options = new JLabel("Deposit('d'), Withdraw('w'), Check Balance('c'), Report all Customer Accounts('r'), Create Account('create'), Remove Account('remove')");
-    options.setBounds(100, 50, 982, 25);
+    options = new JLabel("Deposit('d'), Withdraw('w'), Check Balance('c'), Report all Customer Accounts('r'), Create Account('create'), Remove Account('remove'), Interest Calculator('i')");
+    options.setBounds(50, 50, 982, 25);
     panel.add(options);
 
     //task select label
@@ -356,13 +360,74 @@ public class bankSystemClient implements ActionListener{
     frame.setSize(992, 558);
   }
 
+  //interest
+  public static void interest(){
+    continueBut.setVisible(false);
+
+    //name label
+    nameLbl = new JLabel("Customer Name: ");
+    nameLbl.setBounds(50, 200, 125, 25);
+    panel.add(nameLbl);
+    nameText.setBounds(175, 200, 200, 25);
+    panel.add(nameText);
+
+    //customer ID
+    customerIDLbl = new JLabel("Customer ID: ");
+    customerIDLbl.setBounds(550, 200, 100, 25);
+    panel.add(customerIDLbl);
+    customerIDText.setBounds(650, 200, 200, 25);
+    panel.add(customerIDText);
+
+    //months
+    monthsLbl = new JLabel("Months: ");
+    monthsLbl.setBounds(50, 275, 100, 25);
+    panel.add(monthsLbl);
+    monthsLblText.setBounds(125, 275, 200, 25);
+    panel.add(monthsLblText);
+
+    //complete button
+    changeBut = new JButton("complete");
+    changeBut.setBounds(800, 425, 100, 25);
+    changeBut.addActionListener(new bankSystemClient());
+    panel.add(changeBut);
+
+    //interest label
+    balanceLbl = new JLabel("");
+    balanceLbl.setBounds(360, 350, 500, 25);
+    panel.add(balanceLbl);
+
+    //nameSuccess
+    nameSuccess = new JLabel("");
+    nameSuccess.setBounds(175, 225, 300, 25);
+    panel.add(nameSuccess);
+
+    //IDSuccess
+    IDSuccess = new JLabel("");
+    IDSuccess.setBounds(650, 225, 300, 25);
+    panel.add(IDSuccess);
+
+    //monthsSuccess
+    monthsSuccess = new JLabel("");
+    monthsSuccess.setBounds(125, 300, 300, 25);
+    panel.add(monthsSuccess);
+
+    //error label
+    errorLbl = new JLabel("");
+    errorLbl.setBounds(250, 400, 500, 25);
+    panel.add(errorLbl);
+
+    //repack frame
+    frame.pack();
+    frame.setSize(992, 558);
+  }
+
   //confirmation screen
   public static void confirmation(String task, String name, String change){
     changeBut.setVisible(false);
 
     String string = " continue?";
     if (task.equals("d")){
-      string = "deposit $" + change + " from " + name + "'s account?";
+      string = "deposit $" + change + " to " + name + "'s account?";
     }
 
     if (task.equals("w")){
@@ -405,7 +470,7 @@ public class bankSystemClient implements ActionListener{
       task = taskText.getText().toLowerCase();
 
       //create array list of possible entries and check
-      List <String> possible = Arrays.asList("d", "w", "c", "r", "create", "remove");
+      List <String> possible = Arrays.asList("d", "w", "c", "r", "create", "remove", "i");
       if (verification.inPossibleStringEntries(task, possible)){
         taskSuccess.setText("success.");
         if (task.equals("d")){
@@ -426,6 +491,9 @@ public class bankSystemClient implements ActionListener{
         if (task.equals("remove")){
           remove();
         }
+        if (task.equals("i")){
+          interest();
+        }
       }
       else{
         taskSuccess.setText("Invalid input, Please try again from the options above.");
@@ -439,7 +507,7 @@ public class bankSystemClient implements ActionListener{
       changeNum = 0.0;
 
       //check name
-      if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("create") || task.equals("remove")){
+      if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("create") || task.equals("remove") || task.equals("i")){
         name = nameText.getText().toLowerCase();
         if (verification.checkName(name)){
           name = nameText.getText().toLowerCase();
@@ -451,7 +519,7 @@ public class bankSystemClient implements ActionListener{
         }
       }
       //check ID
-      if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("remove")){
+      if (task.equals("d") || task.equals("w") || task.equals("c") || task.equals("remove") || task.equals("i")){
         errorLbl.setText("");
         ID = customerIDText.getText().toLowerCase();
         if (verification.checkInt(ID)){
@@ -490,12 +558,26 @@ public class bankSystemClient implements ActionListener{
         }
       }
 
+      if (task.equals("i")){
+        String monthsStr = monthsLblText.getText().toLowerCase();
+        if (verification.checkInt(monthsStr)){
+          monthsSuccess.setText("success.");
+          months = Integer.parseInt(monthsStr);
+        }
+        else{
+          monthsSuccess.setText("Invalid response, Please only enter numbers.");
+        }
+      }
+
       //check inputs
       if (changeApproved){
         if (!task.equals("create")){
           if(verify(name, ID)){
             if (task.equals("c")){
               checkBalance(name);
+            }
+            else if (task.equals("i")){
+              interestCalculator(name, Double.parseDouble(balances.get(names.indexOf(name))), months);
             }
             else{
               confirmation(task, name, change);
@@ -633,6 +715,19 @@ public class bankSystemClient implements ActionListener{
     int remIndex = names.indexOf(name);
     info.remove(remIndex);
     updateFile();
+  }
+
+  public static void interestCalculator(String name, double money, int months){
+    if (months == 0){
+      double value = money - Double.parseDouble(balances.get(names.indexOf(name)));
+      String valStr = String.valueOf(value);
+      System.out.println(Double.parseDouble(valStr.substring(0,(valStr.indexOf(".") + 3))));
+      balanceLbl.setText("you will recieve $" + Double.parseDouble(valStr.substring(0,(valStr.indexOf(".") + 3))) + " of interest at 4% a month.");
+    }
+    else{
+      money*=1.03;
+      interestCalculator(name, money, months-1);
+    }
   }
 
   public static void readFile(){
